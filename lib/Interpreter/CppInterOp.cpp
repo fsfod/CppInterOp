@@ -3003,7 +3003,8 @@ namespace Cpp {
         perror("StreamCaptureInfo: Unable to create temp file");
         return;
       }
-
+#if defined(_WIN32)
+#else
       m_DupFD = dup(FD);
 
       // Flush now or can drop the buffer when dup2 is called with Fd later.
@@ -3013,6 +3014,7 @@ namespace Cpp {
 
       if (dup2(fileno(m_TempFile.get()), FD) < 0)
         perror("StreamCaptureInfo:");
+#endif
     }
     StreamCaptureInfo(const StreamCaptureInfo&) = delete;
     StreamCaptureInfo& operator=(const StreamCaptureInfo&) = delete;
@@ -3025,7 +3027,9 @@ namespace Cpp {
 
     std::string GetCapturedString() {
       assert(m_DupFD != -1 && "Multiple calls to GetCapturedString");
-
+#if defined(_WIN32)
+      return "";
+#else
       fflush(nullptr);
 
       if (dup2(m_DupFD, m_FD) < 0)
@@ -3058,6 +3062,7 @@ namespace Cpp {
       close(m_DupFD);
       m_DupFD = -1;
       return result;
+#endif
     }
   };
 
