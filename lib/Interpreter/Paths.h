@@ -59,6 +59,8 @@ void* DLSym(const std::string& Name, std::string* Err = nullptr);
 /// \returns the library handle
 ///
 void DLClose(void* Lib, std::string* Err = nullptr);
+
+bool IsDLL(const std::string & path);
 } // namespace platform
 
 ///\brief Replace all $TOKENS in a string with environent variable values.

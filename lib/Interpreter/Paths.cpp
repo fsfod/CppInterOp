@@ -16,8 +16,18 @@
 #include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/Path.h"
+#include "llvm/Support/DynamicLibrary.h"
+#include "llvm/ADT/Twine.h"
 
+#if defined(LLVM_ON_UNIX)
 #include <dlfcn.h>
+#elif  defined(_WIN32)
+#include "llvm/Support/Windows/WindowsSupport.h"
+#include "llvm/Support/ConvertUTF.h"
+#include <Windows.h> 
+#endif
+
+using  llvm::sys::DynamicLibrary;
 
 namespace Cpp {
 namespace utils {
@@ -31,6 +41,7 @@ namespace platform {
   #error "Unknown platform (environmental delimiter)"
 #endif
 
+#if defined(LLVM_ON_UNIX)
 bool Popen(const std::string& Cmd, llvm::SmallVectorImpl<char>& Buf, bool RdE) {
   if (FILE *PF = ::popen(RdE ? (Cmd + " 2>&1").c_str() : Cmd.c_str(), "r")) {
     Buf.resize(0);
@@ -49,6 +60,7 @@ bool Popen(const std::string& Cmd, llvm::SmallVectorImpl<char>& Buf, bool RdE) {
   }
   return false;
 }
+#endif
 
 bool GetSystemLibraryPaths(llvm::SmallVectorImpl<std::string>& Paths) {
 #if defined(__APPLE__) || defined(__CYGWIN__)
@@ -63,7 +75,7 @@ bool GetSystemLibraryPaths(llvm::SmallVectorImpl<std::string>& Paths) {
   Paths.push_back("/usr/lib64/");
   Paths.push_back("/lib64/");
  #endif
-#else
+#elseif defined(LLVM_ON_UNIX)
   llvm::SmallString<1024> Buf;
   platform::Popen("LD_DEBUG=libs LD_PRELOAD=DOESNOTEXIST ls", Buf, true);
   const llvm::StringRef Result = Buf.str();
@@ -100,6 +112,9 @@ std::string NormalizePath(const std::string& Path) {
   return std::string(Buffer.data());
 }
 
+#if defined(LLVM_ON_UNIX)
+#define PATH_MAXC (PATH_MAX+1)
+
 static void DLErr(std::string* Err) {
   if (!Err)
     return;
@@ -132,6 +147,27 @@ void DLClose(const void* Lib, std::string* Err /* = nullptr*/) {
   ::dlclose(const_cast<void*>(Lib));
   DLErr(Err);
 }
+#elif defined(_WIN32)
+
+bool IsDLL(const std::string & path) 
+{
+  return true;
+}
+
+void* DLOpen(const std::string& Path, std::string* Err /* = nullptr */) {
+   auto lib = DynamicLibrary::getLibrary(Path.c_str(), Err);
+   return lib.getOSSpecificHandle();
+}
+
+void DLClose(void* Lib, std::string* Err /* = nullptr*/) {
+  auto dl = DynamicLibrary(Lib);
+  DynamicLibrary::closeLibrary(dl);
+  if (Err)
+  {
+    *Err = std::string();
+  }
+}
+#endif
 
 } // namespace platform
 
