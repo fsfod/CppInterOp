@@ -30,7 +30,6 @@
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_os_ostream.h"
 
-#include <dlfcn.h>
 #include <sstream>
 #include <string>
 
@@ -39,6 +38,7 @@
 #include <io.h>
 #else
 #include <unistd.h>
+#include <dlfcn.h>
 #endif // WIN32
 
 namespace Cpp {
