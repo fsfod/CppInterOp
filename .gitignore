@@ -37,3 +37,4 @@ install
 
 # CLion files
 .idea
+/.vs/
