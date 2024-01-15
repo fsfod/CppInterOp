@@ -17,6 +17,7 @@
 #include "llvm/ExecutionEngine/JITSymbol.h"
 #include "llvm/ExecutionEngine/Orc/LLJIT.h"
 #include "llvm/Support/Path.h"
+#include "llvm/Support/Casting.h"
 
 #ifdef USE_CLING
 
