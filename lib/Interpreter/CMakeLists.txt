@@ -34,7 +34,6 @@ set(link_libs
   clangFrontend
   clangLex
   clangSema
-  dl
   )
 
 # Get rid of libLLVM-X.so which is appended to the list of static libraries.
