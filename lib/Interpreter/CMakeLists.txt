@@ -84,8 +84,10 @@ if (LLVM_LINK_LLVM_DYLIB)
 endif(LLVM_LINK_LLVM_DYLIB)
 
 add_llvm_library(clangCppInterOp
+  SHARED
   DISABLE_LLVM_LINK_LLVM_DYLIB
   CppInterOp.cpp
+  Export.cpp
   ${DLM}
   LINK_LIBS
   ${link_libs}
