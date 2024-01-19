@@ -1017,6 +1017,27 @@ namespace Cpp {
     return 0;
   }
 
+  bool GetManagledName(TCppFunction_t method, std::string& mangled) {
+    auto *D = (Decl *)method;
+    auto* FD = llvm::dyn_cast_or_null<FunctionDecl>(D);
+    if (!FD)
+      return false;
+
+    auto MangleCtxt = getASTContext().createMangleContext();
+
+    if (!MangleCtxt->shouldMangleDeclName(FD)) {
+      mangled = FD->getNameInfo().getName().getAsString();
+    } else {
+      llvm::raw_string_ostream ostream(mangled);
+      MangleCtxt->mangleName(FD, ostream);
+      ostream.flush();
+    }
+
+    delete MangleCtxt;
+
+    return true;
+  }
+
   bool IsVirtualMethod(TCppFunction_t method) {
     auto *D = (Decl *) method;
     if (auto *CXXMD = llvm::dyn_cast_or_null<CXXMethodDecl>(D)) {

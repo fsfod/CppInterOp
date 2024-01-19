@@ -715,7 +715,7 @@ EXPORT char* EndStdStreamCapture() {
 
 EXPORT const char* GetManagledName(TCppFunction_t method) {
   std::string name;
-  return Cpp::GetManagledName(name) ? StdStringToCString(name) : "";
+  return Cpp::GetManagledName(method, name) ? StdStringToCString(std::move(name)) : "";
 }
 
 }

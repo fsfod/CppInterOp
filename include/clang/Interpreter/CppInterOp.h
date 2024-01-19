@@ -346,6 +346,9 @@ namespace Cpp {
   ///\returns the address of the function given its function declaration.
   TCppFuncAddr_t GetFunctionAddress(TCppFunction_t method);
 
+  ///\Gets the mangled name the function.
+  bool GetManagledName(TCppFunction_t method, std::string & mangled);
+
   /// Checks if the provided parameter is a 'Virtual' method.
   bool IsVirtualMethod(TCppFunction_t method);
 
