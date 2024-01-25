@@ -10,6 +10,7 @@ static char* StdStringToCString(std::string&& s) {
   // Steal the string data when not its not using small string optimization
   if ((cstr - start) > (intptr_t)sizeof(std::string) || (cstr - start) < 0) {
     *((std::string*)&dummy) = std::move(s);
+    (void)dummy;
   }
   else {
     cstr = s.get_allocator().allocate(s.length() + 1);
