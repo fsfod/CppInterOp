@@ -2634,6 +2634,25 @@ namespace Cpp {
     return DLM->searchLibrariesForSymbol(mangled_name, search_system);
   }
 
+  bool LoadStaticLibrary(const char* libpath) {
+    using namespace llvm;
+    using namespace llvm::orc;
+
+    auto& I = getInterp();
+    llvm::orc::LLJIT& Jit = *compat::getExecutionEngine(I);
+    
+    JITDylib& DyLib = *Jit.getProcessSymbolsJITDylib().get();
+    auto Err = Jit.linkStaticLibraryInto(DyLib, libpath);
+    //auto& dynlib = Jit.getMainJITDylib();
+
+    llvm::orc::ExecutionSession& ES = Jit.getExecutionSession();
+    if (Err) {
+      logAllUnhandledErrors(std::move(Err), errs(), "[LoadStaticLibrary] error: ");
+      return false;
+    }
+    return true;
+  }
+
   bool InsertOrReplaceJitSymbol(const char* linker_mangled_name,
                                 uint64_t address) {
     // FIXME: This approach is problematic since we could replace a symbol

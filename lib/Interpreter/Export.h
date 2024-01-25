@@ -411,3 +411,5 @@ EXPORT_API void BeginStdStreamCapture(CaptureStreamKind fd_kind);
 EXPORT_API char* EndStdStreamCapture();
 
 EXPORT_API const char* GetManagledName(TCppFunction_t method);
+
+EXPORT_API bool LoadStaticLibary(const char* libpath);

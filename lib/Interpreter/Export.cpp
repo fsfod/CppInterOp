@@ -720,3 +720,7 @@ EXPORT const char* GetManagledName(TCppFunction_t method) {
 }
 
 }
+
+EXPORT bool LoadStaticLibary(const char* libpath) {
+  return Cpp::LoadStaticLibrary(libpath);
+}

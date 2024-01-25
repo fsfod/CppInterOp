@@ -482,6 +482,9 @@ namespace Cpp {
   ///\returns the path to the first library that contains the symbol definition.
   std::string SearchLibrariesForSymbol(const char* mangled_name,
                                        bool search_system /*true*/);
+  
+  /// Add a static library to provide symbols for code.
+  bool LoadStaticLibrary(const char * libpath);
 
   /// Inserts or replaces a symbol in the JIT with the one provided. This is
   /// useful for providing our own implementations of facilities such as printf.
