@@ -430,3 +430,5 @@ add_subdirectory(lib)
 if (CPPINTEROP_ENABLE_TESTING)
   add_subdirectory(unittests)
 endif(CPPINTEROP_ENABLE_TESTING)
+
+add_subdirectory(DLLTest)
