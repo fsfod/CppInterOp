@@ -11,13 +11,12 @@ int main() {
   const char* args[] = {
     "-v",
     "-target x86_64-pc-windows-msvc",
-    "-fms-runtime-lib=dll",
-    "-fms-extensions",
+    "-fno-delayed-template-parsing",
     "-Wunused-command-line-argument",
     "-fno-rtti",
      "-###",
   };
-  CreateInterpreterC(args,2, "", 0);
+  CreateInterpreterC(args,3, "", 0);
 
   Process(R"==(#include <vcruntime_typeinfo.h>)==");
   InsertOrReplaceJitSymbol("??_7type_info@@6B@", 1);
