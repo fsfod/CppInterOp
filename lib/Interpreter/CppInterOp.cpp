@@ -2456,7 +2456,26 @@ namespace Cpp {
   namespace {
   static std::string MakeResourcesPath() {
     StringRef Dir;
-#ifdef LLVM_BINARY_DIR
+#if defined(_WIN32)
+    std::string BinaryPath = llvm::sys::fs::getMainExecutable(/*Argv0=*/nullptr, nullptr);
+    StringRef parentdir = sys::path::parent_path(BinaryPath);
+    SmallString<256> path = parentdir;
+    sys::path::append(path, Twine("lib/"));
+
+    if (llvm::sys::fs::is_directory(path)) {
+      Dir = parentdir;
+    } else {
+      parentdir = sys::path::parent_path(path);
+      path.truncate(parentdir.size());
+      sys::path::append(path, Twine("lib/"));
+      if (llvm::sys::fs::is_directory(path)) {
+        Dir = parentdir;
+      }
+    }
+    if (Dir.empty()) {
+      Dir = LLVM_BINARY_DIR;
+    }
+#elif defined(LLVM_BINARY_DIR)
     Dir = LLVM_BINARY_DIR;
 #else
     // Dir is bin/ or lib/, depending on where BinaryPath is.
