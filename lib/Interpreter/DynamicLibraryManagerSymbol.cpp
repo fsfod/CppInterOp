@@ -474,9 +474,13 @@ static bool MayExistInElfObjectFile(llvm::object::ObjectFile *soFile,
 // address of main, and some platforms can't implement GetMainExecutable
 // without being given the address of a function in the main executable).
 std::string GetExecutablePath() {
-   // This just needs to be some symbol in the binary; C++ doesn't
-   // allow taking the address of ::main however.
-   return Cpp::DynamicLibraryManager::getSymbolLocation(&GetExecutablePath);
+#ifdef _WIN32
+  return llvm::sys::fs::getMainExecutable(nullptr, nullptr);
+#else
+  // This just needs to be some symbol in the binary; C++ doesn't
+  // allow taking the address of ::main however.
+  return Cpp::DynamicLibraryManager::getSymbolLocation(&GetExecutablePath);
+#endif
 }
 
 namespace Cpp {
