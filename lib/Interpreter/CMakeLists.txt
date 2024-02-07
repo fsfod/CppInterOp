@@ -97,6 +97,10 @@ add_llvm_library(clangCppInterOp
   ${link_libs}
  )
 
+if(MSVC)
+set_property(TARGET clangCppInterOp APPEND_STRING PROPERTY LINK_FLAGS "${MSVC_EXPORTS}")
+endif()
+
 string(REPLACE ";" "\;" _VER CPPINTEROP_VERSION)
 set_source_files_properties(CppInterOp.cpp PROPERTIES COMPILE_DEFINITIONS
   "LLVM_BINARY_DIR=\"${LLVM_BINARY_DIR}\";CPPINTEROP_VERSION=\"${_VAR}\""
