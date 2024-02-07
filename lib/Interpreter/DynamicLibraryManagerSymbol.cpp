@@ -57,6 +57,7 @@
 #include <windows.h>
 #include <libloaderapi.h> // For GetModuleFileNameA
 #include <memoryapi.h> // For VirtualQuery
+#include "llvm/Support/WindowsError.h"
 #endif
 
 namespace {
@@ -1279,6 +1280,27 @@ namespace Cpp {
     return m_Dyld->searchLibrariesForSymbol(mangledName, searchSystem);
   }
 
+  static std::error_code GetModulePath(void* hmod, SmallVectorImpl<char> &Filename) {
+    // The first argument may contain just the name of the executable (e.g.,
+    // "clang") rather than the full path, so swap it with the full path.
+    SmallVector<wchar_t, MAX_PATH> ModuleName;
+    size_t Length;
+    do {
+      Length = ::GetModuleFileNameW(reinterpret_cast<HMODULE>(hmod), ModuleName.data(), ModuleName.size());
+      if (Length == 0) 
+        return llvm::mapWindowsError(GetLastError());
+      else if (Length != ModuleName.size()) 
+        break;
+      // Retry with larger buffer if windows told us the path was truncated
+      ModuleName.reserve(ModuleName.size() * 2);
+    } while (Length != 0);
+
+    std::error_code EC = llvm::sys::windows::UTF16ToUTF8(ModuleName.data(), Length, Filename);
+    if (EC)
+      return EC;
+    return std::error_code();
+  }
+
   std::string DynamicLibraryManager::getSymbolLocation(void *func) {
 #if defined(__CYGWIN__) && defined(__GNUC__)
     return {};
@@ -1286,11 +1308,11 @@ namespace Cpp {
     MEMORY_BASIC_INFORMATION mbi;
     if (!VirtualQuery (func, &mbi, sizeof (mbi)))
       return {};
+    HMODULE hMod = (HMODULE)mbi.AllocationBase;
+    SmallString<MAX_PATH> moduleName;
+    auto EC = GetModulePath(hMod, moduleName);
 
-    HMODULE hMod = (HMODULE) mbi.AllocationBase;
-    char moduleName[MAX_PATH];
-
-    if (!GetModuleFileNameA (hMod, moduleName, sizeof (moduleName)))
+    if (EC)
       return {};
 
     return cached_realpath(moduleName);
