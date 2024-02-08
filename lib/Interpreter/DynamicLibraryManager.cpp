@@ -70,11 +70,15 @@ namespace Cpp {
       addSearchPath(P, /*IsUser*/ false);
   }
 
+#if LLVM_VERSION_MAJOR < 18
+#define starts_with_insensitive startswith_insensitive
+#endif
+
   ///\returns substitution of pattern in the front of original with replacement
   /// Example: substFront("@rpath/abc", "@rpath/", "/tmp") -> "/tmp/abc"
   static std::string substFront(StringRef original, StringRef pattern,
                                 StringRef replacement) {
-    if (!original.startswith_insensitive(pattern))
+    if (!original.starts_with_insensitive(pattern))
       return original.str();
     SmallString<512> result(replacement);
     result.append(original.drop_front(pattern.size()));
